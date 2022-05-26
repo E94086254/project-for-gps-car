@@ -19,7 +19,7 @@ uint8_t RemoteXY_CONF[] =   // 77 bytes
 struct {
 
     // input variables
-  uint8_t forward; // =1 if state is ON, else =0 
+  uint8_t forward=0; // =1 if state is ON, else =0 
   uint8_t left; // =1 if state is ON, else =0 
   uint8_t right; // =1 if state is ON, else =0 
 
@@ -32,8 +32,8 @@ struct {
 
 } RemoteXY;
 #pragma pack(pop)
-int left = 3;
-int right = 5;
+int Left = 3;
+int Right = 5;
 int speed_dect1 = A0;//left
 int speed_dect2 = A1;//right
 float val_1;
@@ -47,19 +47,30 @@ unsigned long int count_2=0;
 unsigned long int timer=0;
 void setup() 
 {
-  delay(5000);
+  delay(3000);
   RemoteXY_Init (); 
-  pinMode(left,OUTPUT);
-  pinMode(right,OUTPUT);
+  pinMode(Left,OUTPUT);
+  pinMode(Right,OUTPUT);
   pinMode(speed_dect1, INPUT);
   pinMode(speed_dect2, INPUT);
-  analogWrite(left,0);
-  analogWrite(right,0);
+  analogWrite(Left,0);
+  analogWrite(Right,0);
   // TODO you setup code  
 }
 
 void loop() 
 { 
+  RemoteXY_Handler ();
+  if(RemoteXY.forward==1)
+  {
+    analogWrite(Left,15);
+    analogWrite(Right,15);
+  }
+  else if (RemoteXY.forward==0)
+  {
+    analogWrite(Left,0);
+    analogWrite(Right,0);
+  }
   val_1=(analogRead(speed_dect1))*5/1024;//ADC
   val_2=(analogRead(speed_dect2))*5/1024;//ADC
   //left signal convert to digital
@@ -90,57 +101,21 @@ void loop()
   }
   beforeval_1=val_1;
   beforeval_2=val_2;
-  RemoteXY_Handler ();
-  //forward judge
-  if(RemoteXY.forward==1&&RemoteXY.right==0&&RemoteXY.left==0)
-  {
-    analogWrite(left,16);
-    analogWrite(right,15);
-    if (rpm_1>rpm_2)//left>right
-    {
-      analogWrite(left,16);
-      analogWrite(right,17);
-    }
-    else if (rpm_1<rpm_2)//left<right
-    {
-      analogWrite(left,16);
-      analogWrite(right,15);
-    }
-  }
-  else if(RemoteXY.forward==0&&RemoteXY.right==0&&RemoteXY.left==0)
-  {
-    analogWrite(left,0);
-    analogWrite(right,0);
-  }
-  //left judge
-  if(RemoteXY.left==1)
-  {
-    analogWrite(left,20);
-    analogWrite(right,15);
-  }
-
-  //right judge  
-  if(RemoteXY.right==1)
-  {
-    analogWrite(left,15);
-    analogWrite(right,20);
-  }
-    
-  //print speed on phone
+  
   if((millis()-timer)>=1000)
   {
       rpm_1=count_1;
       rpm_1=(rpm_1/24)*60;
       rpm_2=count_2;
       rpm_2=(rpm_2/24)*60;
+      Serial.print(rpm_1);
+      Serial.print(rpm_2);
       RemoteXY.left_speed=rpm_1;
       RemoteXY.right_speed=rpm_2;
       timer=millis();
       count_1=0;
       count_2=0;
   }
-
-
 }
 void counter_1() {
    count_1++;
