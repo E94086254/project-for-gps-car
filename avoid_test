@@ -77,7 +77,7 @@ void loop()
   }
   beforeval_2=val_2;
   RemoteXY_Handler ();
-  if(flag=0)//沒有遇到障礙物
+  if(flag==0)//沒有遇到障礙物
   {
      //forward judge
     if(RemoteXY.forward==1&&RemoteXY.right==0&&RemoteXY.left==0)
@@ -103,13 +103,13 @@ void loop()
       analogWrite(Right,14);
     }
   }
-
-  else if (flag=1)//遇到障礙物
+  Lidar_scan();//掃描一次
+  if (pulseWidth<30 && flag==0)//遇到障礙物
   {
     turn_left();
-    flag=2;
+    flag=1;
   }
-  else if (flag=2)//左轉後
+  if (flag==1)//左轉後
   {
     for(int i=0;i<10;i++)
     {
@@ -117,18 +117,18 @@ void loop()
       tmp[i]=pulseWidth;
       delay(100);
     }
+    min_distance=tmp[0];
     for(int i=0;i<10;i++)//找到掃一圈最小的距離
     {
-      min_distance=tmp[0];
       if(tmp[i]<min_distance)
-      min_distance=tmp[i];
+        min_distance=tmp[i];
     }
-    if(min_distance>=45)
+    if(min_distance>=45)//已經躲開障礙物就右轉
     {
       turn_right();
       flag=0;
     }
-    else
+    else//沒有躲開就直走
     {
       analogWrite(Left,15);
       analogWrite(Right,13);
@@ -149,7 +149,6 @@ void loop()
       timer=millis();
       count_2=0;
   }
-  Lidar_scan();
 }
 void counter_2() 
 {
@@ -159,16 +158,6 @@ void Lidar_scan()
 {
   pulseWidth = pulseIn(11, HIGH); // Count how long the pulse is high in microsecond
   pulseWidth = pulseWidth / 10; // 10usec = 1 cm of distance
-  if(pulseWidth<30)
-  {
-    /*Serial.print(pulseWidth); 
-    analogWrite(Left,0);
-    analogWrite(Right,0);
-    RemoteXY.forward=0;//把按鍵reset
-    RemoteXY.left=0;
-    RemoteXY.right=0;*/
-    flag=1;
-  }
 }
 void turn_left()
 {
@@ -186,3 +175,4 @@ void turn_right()
     analogWrite(Right,21);
   }
 }
+
