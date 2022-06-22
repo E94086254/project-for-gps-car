@@ -61,10 +61,10 @@ void loop()
   
   myservo.write(0);  //旋轉到0度，就是一般所說的歸零
   
-  delay(760);
+  delay(775);
     
   myservo.write(180);  //旋轉到0度，就是一般所說的
    
-  delay(757);
+  delay(763);
 
 }
