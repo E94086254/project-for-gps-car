@@ -65,6 +65,6 @@ void loop()
     
   myservo.write(180);  //旋轉到0度，就是一般所說的
    
-  delay(755);
+  delay(757);
 
 }
