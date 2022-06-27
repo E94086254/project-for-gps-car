@@ -33,15 +33,16 @@ struct {
 } RemoteXY;
 #pragma pack(pop)
 int Left = 3;//左輪為3腳位
-int Right = 5;//右輪為3腳位
-int speed_dect2 = A1;//right
-float val_2;
-int beforeval_2=0;
-float rpm_2;
+int Right = 5;//右輪為5腳位
+int speed_dect2 = A1;//沒用
+float val_2;//沒用
+int beforeval_2=0;//沒用
+float rpm_2;//沒用
 int flag=0;//判斷障礙物旗標 if flag=0 no item , if flag=1 there are item
 int tmp[10] = { };//暫存陣列
 float min_distance;
-unsigned long int count_2=0;
+int avoid=0;//計數
+unsigned long int count_2=0;//沒用
 unsigned long int timer=0;
 unsigned long pulseWidth;
 void setup() 
@@ -76,14 +77,15 @@ void loop()
     counter_2();
   }
   beforeval_2=val_2;
+  //上面都沒用
   RemoteXY_Handler ();
   if(flag==0)//沒有遇到障礙物
   {
      //forward judge
     if(RemoteXY.forward==1&&RemoteXY.right==0&&RemoteXY.left==0)
     {
-      analogWrite(Left,15);
-      analogWrite(Right,13);
+      analogWrite(Left,25);
+      analogWrite(Right,26);
     }
     else if(RemoteXY.forward==0&&RemoteXY.right==0&&RemoteXY.left==0)
     {
@@ -93,55 +95,82 @@ void loop()
     //left judge
     if(RemoteXY.left==1)
     {
-      analogWrite(Left,15);
-      analogWrite(Right,19);
+      analogWrite(Left,20);
+      analogWrite(Right,25);
     }
     //right judge  
     if(RemoteXY.right==1)
     {
-      analogWrite(Left,21);
-      analogWrite(Right,14);
+      analogWrite(Left,25);
+      analogWrite(Right,10);
     }
   }
   Lidar_scan();//掃描一次
-  if (pulseWidth<30 && flag==0)//遇到障礙物
+  if (avoid>4 && flag==0)//遇到障礙物
   {
-    turn_left();
-    flag=1;
+    if(RemoteXY.forward==0&&RemoteXY.right==0&&RemoteXY.left==0)//手動停止用
+    {
+      analogWrite(Left,0);
+      analogWrite(Right,0);
+    }
+    else if(RemoteXY.forward==1)
+    {
+      while(1)
+      {
+        analogWrite(Left,0);
+        analogWrite(Right,0);
+        if((millis()-timer)>=500)
+        {
+          timer=millis();
+          break;
+        }
+      }
+      Serial.print(pulseWidth);//藍振恩和方祥宇用的羅振升不用管
+      turn_left();
+      flag=1;
+    }
   }
   if (flag==1)//左轉後
   {
-    for(int i=0;i<10;i++)
+    if(RemoteXY.forward==0&&RemoteXY.right==0&&RemoteXY.left==0)//手動關掉用的
     {
-      Lidar_scan();
-      tmp[i]=pulseWidth;
-      delay(100);
+      analogWrite(Left,0);
+      analogWrite(Right,0);
     }
-    min_distance=tmp[0];
-    for(int i=0;i<10;i++)//找到掃一圈最小的距離
+    else
     {
-      if(tmp[i]<min_distance)
-        min_distance=tmp[i];
-    }
-    if(min_distance>=45)//已經躲開障礙物就右轉
-    {
-      turn_right();
-      flag=0;
-    }
-    else//沒有躲開就直走
-    {
-      analogWrite(Left,15);
-      analogWrite(Right,13);
-      if(min_distance<20)
+      for(int i=0;i<10;i++)//經過一秒得到十個數字
       {
-        analogWrite(Left,15);
-        analogWrite(Right,15);
+         Lidar_scan();
+         tmp[i]=pulseWidth;//掃到的距離
+         delay(100);
+      }
+      min_distance=tmp[0];
+      for(int i=0;i<10;i++)//找到掃一圈最小的距離
+      {
+        if(tmp[i]<min_distance)
+        min_distance=tmp[i];
+      }
+      Serial.print(min_distance);
+      if(min_distance>=50)//已經躲開障礙物就右轉
+      {
+        turn_right();
+        flag=0;
+      }
+      else if(min_distance<50)//沒有躲開就直走
+      {
+        analogWrite(Left,25);
+        analogWrite(Right,26);
+      }
+      else if(min_distance<20)//如果距離太近再往左靠
+      {
+        analogWrite(Left,22);
+        analogWrite(Right,26);
       }
     }
-  }
-
-  //print speed on phone
-  if((millis()-timer)>=500)
+   }
+    //print speed on phone
+  if((millis()-timer)>=500)//沒用
   { 
       rpm_2=count_2;
       rpm_2=(rpm_2/24)*60;
@@ -158,21 +187,38 @@ void Lidar_scan()
 {
   pulseWidth = pulseIn(11, HIGH); // Count how long the pulse is high in microsecond
   pulseWidth = pulseWidth / 10; // 10usec = 1 cm of distance
+  if(pulseWidth<50)
+  {
+    avoid++;
+  }
+  else
+  {
+    avoid=0;
+  }
 }
 void turn_left()
 {
-  for(int i;i<=1000;i++)
+  while(1)
   {
-    analogWrite(Left,21);
-    analogWrite(Right,0);
+    analogWrite(Left,0);
+    analogWrite(Right,25);
+    if((millis()-timer)>=800)
+    {
+      timer=millis();
+      break;
+    }
   }
 }
 void turn_right()
 {
-  for(int i;i<=1000;i++)
+  while(1)
   {
-    analogWrite(Left,0);
-    analogWrite(Right,21);
+    analogWrite(Left,25);
+    analogWrite(Right,0);
+    if((millis()-timer)>=1200)
+    {
+      timer=millis();
+      break;
+    }
   }
 }
-
