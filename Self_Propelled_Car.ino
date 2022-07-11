@@ -63,6 +63,29 @@ void setup()
 void loop() 
 { 
   RemoteXY_Handler ();
+  val_2=(analogRead(speed_dect2))*5/1024;//ADC
+  if(val_2>2)
+  {
+    val_2=1;
+  }
+  else if(val_2<=2)
+  {
+    val_2=0;
+  }
+  if(val_2==1 and beforeval_2==0)//Positive edge trigger
+  {
+    counter_2();
+  }
+  beforeval_2=val_2;
+  if((millis()-timer)>=1000)
+  {
+      rpm_2=count_2;
+      rpm_2=(rpm_2/24)*60;
+      Serial.print(rpm_2);
+      RemoteXY.right_speed=rpm_2;
+      timer=millis();
+      count_2=0;
+  }
   if(RemoteXY.forward==1&&RemoteXY.right==0&&RemoteXY.left==0)
   {
     if(flag==0)//沒有遇到障礙物
@@ -178,4 +201,8 @@ void turn_right()
       break;
     }
   }
+}
+void counter_2()
+{
+   count_2++;
 }
