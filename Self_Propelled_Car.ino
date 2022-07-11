@@ -91,7 +91,7 @@ void loop()
     if(flag==0)//沒有遇到障礙物
     {
       analogWrite(Left,25);
-      analogWrite(Right,26);
+      analogWrite(Right,27);
     }
     Lidar_scan();//掃描一次
     if (avoid>4 && flag==0)
@@ -135,13 +135,13 @@ void loop()
       else if(min_distance<50)//沒有躲開就直走
       {
         analogWrite(Left,25);
-        analogWrite(Right,26);
+        analogWrite(Right,27);
         timer = millis()+800;
       }
       else if(min_distance<20)//如果距離太近再往左靠
       {
-        analogWrite(Left,22);
-        analogWrite(Right,26);
+        analogWrite(Left,23);
+        analogWrite(Right,27);
       }
     }
   }
@@ -173,13 +173,13 @@ void turn_left()
   while(1)
   {
     analogWrite(Left,0);
-    analogWrite(Right,25);
+    analogWrite(Right,27);
     if((millis()-timer)>=800)
     {
       timer=millis();
       break;
     }
-        if (RemoteXY.forward==0)
+    if (RemoteXY.forward==0)
     {
       break;
     }
@@ -191,7 +191,7 @@ void turn_right()
   {
     analogWrite(Left,25);
     analogWrite(Right,0);
-    if((millis()-timer)>=1600)
+    if((millis()-timer)>=2000)
     {
       timer=millis();
       break;
