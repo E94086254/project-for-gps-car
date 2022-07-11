@@ -202,7 +202,3 @@ void turn_right()
     }
   }
 }
-void counter_2()
-{
-   count_2++;
-}
