@@ -127,18 +127,18 @@ void loop()
         if(tmp[i]<min_distance)
         min_distance=tmp[i];
       }
-      if(min_distance>=50)//已經躲開障礙物就右轉
+      if(min_distance>=100)//已經躲開障礙物就右轉
       {
         turn_right();
         flag=0;
       }
-      else if(min_distance<50)//沒有躲開就直走
+      else if(min_distance<100)//沒有躲開就直走
       {
         analogWrite(Left,25);
         analogWrite(Right,27);
         timer = millis()+800;
       }
-      else if(min_distance<20)//如果距離太近再往左靠
+      else if(min_distance<50)//如果距離太近再往左靠
       {
         analogWrite(Left,23);
         analogWrite(Right,27);
@@ -159,7 +159,7 @@ void Lidar_scan()
 {
   pulseWidth = pulseIn(11, HIGH); // Count how long the pulse is high in microsecond
   pulseWidth = pulseWidth / 10; // 10usec = 1 cm of distance
-  if(pulseWidth<100)
+  if(pulseWidth<150)
   {
     avoid++;
   }
@@ -189,7 +189,7 @@ void turn_right()
 {
   while(1)
   {
-    analogWrite(Left,25);
+    analogWrite(Left,26);
     analogWrite(Right,0);
     if((millis()-timer)>=2000)
     {
