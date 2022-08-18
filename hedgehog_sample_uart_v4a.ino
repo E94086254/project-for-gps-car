@@ -14,8 +14,7 @@
  */
 
 #include <stdlib.h>
-#include <LiquidCrystal_I2C.h>
-LiquidCrystal_I2C lcd(0x27,16,2);  
+
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 //  MARVELMIND HEDGEHOG RELATED PART
@@ -46,7 +45,7 @@ typedef union {byte b[4];float f;unsigned long v32;long vi32;} uni_8x4_32;
 //    Marvelmind hedgehog support initialize
 void setup_hedgehog() 
 {
-  Serial.begin(9600); // hedgehog transmits data on 9600bps  
+  Serial.begin(115200); // hedgehog transmits data on 9600bps  
 
   hedgehog_serial_buf_ofs= 0;
   hedgehog_pos_updated= 0;
@@ -158,12 +157,9 @@ void loop_hedgehog()
               un16.b[0]= hedgehog_serial_buf[9];
               un16.b[1]= hedgehog_serial_buf[10];
               hedgehog_x= 10*long(un16.wi);
-              //Serial.print(hedgehog_x);
-              Serial.write(hedgehog_x); 
               un16.b[0]= hedgehog_serial_buf[11];
               un16.b[1]= hedgehog_serial_buf[12];
               hedgehog_y= 10*long(un16.wi);
-              Serial.print(hedgehog_y); 
               // height of hedgehog, cm==>mm (FW V3.97+)
               un16.b[0]= hedgehog_serial_buf[13];
               un16.b[1]= hedgehog_serial_buf[14];
@@ -237,69 +233,26 @@ void hedgehog_set_crc16(byte *buf, byte size)
 #define INC 0     //Inch
 #define TP 2      //Trig_pin
 #define EP 3      //Echo_pin
-
+#include <Wire.h>
 
 
 void setup()
 {
-  lcd.init();                     //初始化LCD
-  lcd.clear();                  //清空LCD
-  lcd.backlight();          //是否開啟背光
-  lcd.setCursor(0,0);    //設定游標位置
-
-  lcd.setCursor(0,0); 
-  lcd.print("Waiting");
-  lcd.setCursor(0,1); 
-  lcd.print("X,Y,Z");
-
+  
   setup_hedgehog();//    Marvelmind hedgehog support initialize
+  Serial.begin(115200);
+  Wire.begin(8);                // join i2c bus with address #8
+  Wire.onRequest(requestEvent); // register event
+
 }
 
 void loop()
-{  byte lcd_coord_precision;
-   char lcd_buf[12];
-#ifdef DISTANCE_SENSOR_ENABLED
-   long microseconds = TP_init();
-   long distacne_cm = Distance(microseconds, CM);
-   lcd.setCursor(10,0); 
-   lcd.print("D="); 
-   lcd.print(distacne_cm); 
-   lcd.print("  "); 
-#endif
-
-   loop_hedgehog();// Marvelmind hedgehog service loop
-
-   if (hedgehog_pos_updated)
-     {// new data from hedgehog available
-       hedgehog_pos_updated= 0;// clear new data flag 
-       // output hedgehog position to LCD
-       if (high_resolution_mode)
-        {
-          lcd_coord_precision= 3;
-        }
-       else
-        {
-          lcd_coord_precision= 2; 
-        }
-       
-       lcd.setCursor(0,0); 
-       lcd.print("X=");
-       dtostrf(((float) hedgehog_x)/1000.0f, 4, lcd_coord_precision, lcd_buf);
-       lcd.print(lcd_buf);
-       lcd.print("   ");  
-       
-       lcd.setCursor(0,1);
-       lcd.print("Y=");
-       dtostrf(((float) hedgehog_y)/1000.0f, 4, lcd_coord_precision, lcd_buf);
-       lcd.print(lcd_buf);  
-       lcd.print("  ");  
-       
-       lcd.setCursor(9,1); 
-       lcd.print("Z=");  
-       dtostrf(((float) hedgehog_z)/1000.0f, 4, lcd_coord_precision, lcd_buf);
-       lcd.print(lcd_buf);
-       lcd.print("   ");  
-     }
+{  
+  loop_hedgehog();// Marvelmind hedgehog service loop
+   Serial.print("hedgehog_x:");
+   Serial.print(hedgehog_x);
+   Serial.print("hedgehog_y:");
+   Serial.println(hedgehog_y);
 }
 
 long Distance(long time, int flag)
@@ -326,4 +279,13 @@ long TP_init()
   digitalWrite(TP, LOW);
   long microseconds = pulseIn(EP,HIGH);   // waits for the pin to go HIGH, and returns the length of the pulse in microseconds
   return microseconds;                    // return microseconds
+}
+
+void requestEvent() {
+  int c1 = 23;
+  //hedgehog_x = 5;
+  int c =  hedgehog_x*1000;
+  Wire.write(c);
+  Wire.write("s");
+  // as expected by master
 }
