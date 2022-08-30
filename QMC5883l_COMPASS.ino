@@ -33,6 +33,7 @@ void setup()
         compass.setDataRate(HMC5883L_DATARATE_15HZ);
         compass.setSamples(HMC5883L_SAMPLES_8);
     }
+  
    else if(compass.isQMC()){
         Serial.println("Initialize QMC5883");
         compass.setRange(QMC5883_RANGE_2GA);
