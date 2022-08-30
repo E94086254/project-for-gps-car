@@ -1,4 +1,5 @@
 /*!
+ * 羅盤要平放才是正確的角度數值
  * 我們的HMC5883L其實是QMC5883L
  * @file QMC5883_compass.cpp
  * @brief The program shows how to realize the function compass.When the program runs, please spin QMC5883 freely to accomplish calibration.
