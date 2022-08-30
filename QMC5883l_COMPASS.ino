@@ -1,4 +1,5 @@
 /*!
+ * https://www.youtube.com/watch?v=nwHKobJ8ndk 
  * 羅盤要平放才是正確的角度數值
  * 我們的HMC5883L其實是QMC5883L
  * @file QMC5883_compass.cpp
