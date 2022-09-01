@@ -19,8 +19,8 @@
 //////////////////////////////////////////////////////////////////////////////
 //  MARVELMIND HEDGEHOG RELATED PART
 
-long hedgehog_x, hedgehog_y;// coordinates of hedgehog (X,Y), mm
-long hedgehog_z;// height of hedgehog, mm
+float hedgehog_x, hedgehog_y;// coordinates of hedgehog (X,Y), mm
+float hedgehog_z;// height of hedgehog, mm
 int hedgehog_pos_updated;// flag of new data from hedgehog received
 
 bool high_resolution_mode;
@@ -250,9 +250,9 @@ void loop()
 {  
   loop_hedgehog();// Marvelmind hedgehog service loop
    Serial.print("hedgehog_x:");
-   Serial.print(hedgehog_x);
+   Serial.print(hedgehog_x/1000);
    Serial.print("hedgehog_y:");
-   Serial.println(hedgehog_y);
+   Serial.println(hedgehog_y/1000);
 }
 
 long Distance(long time, int flag)
