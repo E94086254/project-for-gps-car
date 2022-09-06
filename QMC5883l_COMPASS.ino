@@ -1,13 +1,10 @@
 /*!
- * https://www.youtube.com/watch?v=nwHKobJ8ndk 
- * 羅盤要平放才是正確的角度數值
- * 我們的HMC5883L其實是QMC5883L
  * @file QMC5883_compass.cpp
  * @brief The program shows how to realize the function compass.When the program runs, please spin QMC5883 freely to accomplish calibration.
  * @n 3-Axis Digital Compass IC
  *
- * @copyright    [DFRobot](http://www.dfrobot.com), 2017
- * @copyright    GNU Lesser General Public License
+ * @copyright	[DFRobot](http://www.dfrobot.com), 2017
+ * @copyright	GNU Lesser General Public License
  *
  * @author [dexian.huang](952838602@qq.com)
  * @version  V1.0
@@ -18,7 +15,7 @@
 #include <DFRobot_QMC5883.h>
 
 DFRobot_QMC5883 compass;
-
+int i=0;
 void setup()
 {
   Serial.begin(115200);
@@ -35,7 +32,6 @@ void setup()
         compass.setDataRate(HMC5883L_DATARATE_15HZ);
         compass.setSamples(HMC5883L_SAMPLES_8);
     }
-  
    else if(compass.isQMC()){
         Serial.println("Initialize QMC5883");
         compass.setRange(QMC5883_RANGE_2GA);
@@ -47,7 +43,6 @@ void setup()
 void loop()
 {
   Vector norm = compass.readNormalize();
-
   // Calculate heading
   float heading = atan2(norm.YAxis, norm.XAxis);
 
@@ -56,7 +51,7 @@ void loop()
   // (+) Positive or (-) for negative
   // For Bytom / Poland declination angle is 4'26E (positive)
   // Formula: (deg + (min / 60.0)) / (180 / M_PI);
-  float declinationAngle = (4.0 + (26.0 / 60.0)) / (180 / PI);
+  float declinationAngle = ((-4.0) + (17.0 / 60.0)) / (180 / PI);
   heading += declinationAngle;
 
   // Correct for heading < 0deg and heading > 360deg
@@ -72,11 +67,22 @@ void loop()
   float headingDegrees = heading * 180/M_PI; 
 
   // Output
-  Serial.print(" Heading = ");
+  /*Serial.print(" Heading = ");
   Serial.print(heading);
   Serial.print(" Degress = ");
   Serial.print(headingDegrees);
-  Serial.println();
-
-  delay(100);
+  Serial.println();*/
+  if(heading>0)
+  {
+    i++;
+  }
+  if(i>50)
+  {
+    Serial.print(" Heading = ");
+    Serial.print(heading);
+    Serial.print(" Degress = ");
+    Serial.print(headingDegrees);
+    Serial.println();
+    i=0;
+  }
 }
