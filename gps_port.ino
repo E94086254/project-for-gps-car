@@ -306,8 +306,10 @@ void loop()
     //Serial.println();
     if(a_flag==0)// not arrive to a_y
       go_to_ay();
-    //if(a_flag==1)// not arrive to a_x
-      //go_to_ax();
+    else if(a_flag==1)// not arrive to a_x
+      go_to_ax();
+    else
+      Serial.print("s");
     i=0;
   }
 }
@@ -356,33 +358,33 @@ void go_to_ay()
     }
   else
     {
-      Serial.println("g");
-      /*if(a_y-(hedgehog_y/1000)>0.4)//現在座標與a點差40CM
+      //Serial.println("g");
+      if(a_y-(hedgehog_y/1000)>0.4)//現在座標與a點差40CM
       {
-        Serial.print("g");
+        Serial.println("g");
       }
       else
       {
         a_flag=1;//arrive to a_y   
-        Serial.print(a_flag);
-      }*/
+        //Serial.print(a_flag);
+      }
     }
 }
 void go_to_ax()
 {
-  if(80<headingDegrees && headingDegrees<120)//車頭朝電梯
+  if(50<headingDegrees && headingDegrees<130)//車頭朝電梯
   {
     if(a_x-(hedgehog_x/1000)>0.4)//現在座標與a點差40CM
-      Serial.print("g");
+      Serial.println("g");
     else
       a_flag=2;//arrive to a_y  
   }
-  else if(headingDegrees>0 && headingDegrees<80)
+  else if((headingDegrees>0 && headingDegrees<50) || headingDegrees>270 )
   {
-    Serial.print("r");
+    Serial.println("r");
   }
-  else if(headingDegrees>120 && headingDegrees<360)
+  else if(headingDegrees>130 && headingDegrees<270)
   {
-    Serial.print("l");
+    Serial.println("l");
   }
 }
